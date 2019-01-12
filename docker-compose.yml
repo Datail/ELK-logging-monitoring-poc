@@ -13,7 +13,8 @@ services:
         container_name: elk
         restart: on-failure
         networks:
-            - elknet
+            elknet:
+                ipv4_address: '50.100.0.13'
         ports:
             - '9200:9200'
             - '9300:9300'
@@ -21,6 +22,7 @@ services:
             - '5044:5044'
         volumes:
             - './Logstash/Pipelines/:/usr/share/logstash/pipeline/'
+            - './Logstash/Pipelines/:/etc/logstash/conf.d/'
         environment:
             - ES_CONNECT_RETRY=300
     
