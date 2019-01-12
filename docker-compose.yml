@@ -21,6 +21,8 @@ services:
             - '5044:5044'
         volumes:
             - './Logstash/Pipelines/:/usr/share/logstash/pipeline/'
+        environment:
+            - ES_CONNECT_RETRY=300
     
     
     filebeat_spark_master:
@@ -29,15 +31,19 @@ services:
         user: root
         image: "docker.elastic.co/beats/filebeat:6.5.4"
         volumes:
-            - './Beats/Filebeat/filebeat.yml:/etc/filebeat/filebeat.yml'
-            - './Beats/Filebeat/modules.d/:/etc/filebeat/modules.d/'
+            - './Beats/Filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml'
+            - './Beats/Filebeat/modules.d/:/usr/share/filebeat/modules.d/'
             - './Logs/Spark_Master/:/var/log/spark_master/'
         networks:
             - elknet
-        command:  'filebeat setup --template -E output.logstash.enabled=false  -E beat.name=master -E ''output.elasticsearch.hosts=["elk:9200"]'' && filebeat -e -c /etc/filebeat/filebeat.yml'
+        #command:  'filebeat setup --template -E output.logstash.enabled=false  -E beat.name=master -E ''output.elasticsearch.hosts=["elk:9200"]'' && filebeat -e -c /etc/filebeat/filebeat.yml'
         restart: on-failure
         depends_on:
             - elk
+        environment:
+            - output.elasticsearch.hosts= ["elk:9200"]
+            - setup.kibana.host = 'elk:5601'
+            - beat.name= 'master'
             
     filebeat_spark_worker1:
         container_name: filebeat_spark_worker1
@@ -45,15 +51,19 @@ services:
         user: root
         image: "docker.elastic.co/beats/filebeat:6.5.4"
         volumes:
-            - './Beats/Filebeat/filebeat.yml:/etc/filebeat/filebeat.yml'
-            - './Beats/Filebeat/modules.d/:/etc/filebeat/modules.d/'
+            - './Beats/Filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml'
+            - './Beats/Filebeat/modules.d/:/usr/share/filebeat/modules.d/'
             - './Logs/Spark_Worker1/:/var/log/spark_worker1/'
         networks:
             - elknet
-        command:  'filebeat setup --template -E output.logstash.enabled=false  -E beat.name=wrk1 -E ''output.elasticsearch.hosts=["elk:9200"]'' && filebeat -e -c /etc/filebeat/filebeat.yml'
+        #command:  'filebeat setup --template -E output.logstash.enabled=false  -E beat.name=wrk1 -E ''output.elasticsearch.hosts=["elk:9200"]'' && filebeat -e -c /etc/filebeat/filebeat.yml'
         restart: on-failure
         depends_on:
             - elk
+        environment:
+            - output.elasticsearch.hosts= ["elk:9200"]
+            - setup.kibana.host = 'elk:5601'
+            - beat.name= 'wrk1'
             
     filebeat_spark_worker2:
         container_name: filebeat_spark_worker2
@@ -61,15 +71,19 @@ services:
         user: root
         image: "docker.elastic.co/beats/filebeat:6.5.4"
         volumes:
-            - './Beats/Filebeat/filebeat.yml:/etc/filebeat/filebeat.yml'
-            - './Beats/Filebeat/modules.d/:/etc/filebeat/modules.d/'
+            - './Beats/Filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml'
+            - './Beats/Filebeat/modules.d/:/usr/share/filebeat/modules.d/'
             - './Logs/Spark_Worker2/:/var/log/spark_worker2/'
         networks:
             - elknet
-        command: 'filebeat setup --template -E output.logstash.enabled=false  -E beat.name=wk2 -E ''output.elasticsearch.hosts=["elk:9200"]'' && filebeat -e -c /etc/filebeat/filebeat.yml'
+        #command: 'filebeat setup --template -E output.logstash.enabled=false  -E beat.name=wk2 -E ''output.elasticsearch.hosts=["elk:9200"]'' && filebeat -e -c /etc/filebeat/filebeat.yml'
         restart: on-failure
         depends_on:
             - elk
+        environment:
+            - output.elasticsearch.hosts= ["elk:9200"]
+            - setup.kibana.host = 'elk:5601'
+            - beat.name= 'wk2'
     
     spark_master:
         image: bde2020/spark-master:2.4.0-hadoop2.7
