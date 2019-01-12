@@ -4,7 +4,7 @@ networks:
         driver: bridge
         ipam:
             driver: default
-            config: [{subnet: 50.100.0.0/16}]
+            config: [{subnet: 13.100.0.0/16}]
 services:
     elk:
         image: 'sebp/elk:latest'
@@ -13,8 +13,7 @@ services:
         container_name: elk
         restart: on-failure
         networks:
-            elknet:
-                ipv4_address: '50.100.0.13'
+            - elknet
         ports:
             - '9200:9200'
             - '9300:9300'
