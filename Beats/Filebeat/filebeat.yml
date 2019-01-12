@@ -24,9 +24,20 @@ filebeat.inputs:
   
 output.logstash:
   hosts: ["elk:5044"]
+  ssl.certificate_authorities: ["/etc/ca.crt"]
+  ssl.certificate: "/etc/client.crt"
+  ssl.key: "/etc/client.key"
   
-setup.kibana:
-  host: "elk:5601"
+output.elasticsearch.hosts: ["https://elk:9200"]
+output.elasticsearch.ssl.certificate_authorities: ["/etc/pki/root/ca.pem"]
+output.elasticsearch.ssl.certificate: "/etc/pki/client/cert.pem"
+output.elasticsearch.ssl.key: "/etc/pki/client/cert.key"
+  
+setup.kibana.host: "https://elk:5601"
+setup.kibana.ssl.enabled: true
+setup.kibana.ssl.certificate_authorities: ["/etc/pki/root/ca.pem"]
+setup.kibana.ssl.certificate: "/etc/pki/client/cert.pem"
+setup.kibana.ssl.key: "/etc/pki/client/cert.key"
   
 setup.dashboards.enabled: true
 setup.dashboards.beat: "filebeat"
