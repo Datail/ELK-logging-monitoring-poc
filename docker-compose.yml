@@ -1,0 +1,122 @@
+version: '3'
+networks:
+    elknet:
+        driver: bridge
+        ipam:
+            driver: default
+            config: [{subnet: 50.100.0.0/16}]
+services:
+    elk:
+        image: 'sebp/elk:latest'
+        privileged: true
+        hostname: elk
+        container_name: elk
+        restart: on-failure
+        networks:
+            - elknet
+        ports:
+            - '9200:9200'
+            - '9300:9300'
+            - '5601:5601'
+            - '5044:5044'
+        volumes:
+            - './Logstash/Pipelines/:/usr/share/logstash/pipeline/'
+    
+    
+    filebeat_spark_master:
+        container_name: filebeat_spark_master
+        hostname: filebeat_spark_master
+        user: root
+        image: "docker.elastic.co/beats/filebeat:6.5.4"
+        volumes:
+            - './Beats/Filebeat/filebeat.yml:/etc/filebeat/filebeat.yml'
+            - './Beats/Filebeat/modules.d/:/etc/filebeat/modules.d/'
+            - './Logs/Spark_Master/:/var/log/spark_master/'
+        networks:
+            - elknet
+        command:  'filebeat setup --template -E output.logstash.enabled=false  -E beat.name=master -E ''output.elasticsearch.hosts=["elk:9200"]'' && filebeat -e -c /etc/filebeat/filebeat.yml'
+        restart: on-failure
+        depends_on:
+            - elk
+            
+    filebeat_spark_worker1:
+        container_name: filebeat_spark_worker1
+        hostname: filebeat_spark_worker1
+        user: root
+        image: "docker.elastic.co/beats/filebeat:6.5.4"
+        volumes:
+            - './Beats/Filebeat/filebeat.yml:/etc/filebeat/filebeat.yml'
+            - './Beats/Filebeat/modules.d/:/etc/filebeat/modules.d/'
+            - './Logs/Spark_Worker1/:/var/log/spark_worker1/'
+        networks:
+            - elknet
+        command:  'filebeat setup --template -E output.logstash.enabled=false  -E beat.name=wrk1 -E ''output.elasticsearch.hosts=["elk:9200"]'' && filebeat -e -c /etc/filebeat/filebeat.yml'
+        restart: on-failure
+        depends_on:
+            - elk
+            
+    filebeat_spark_worker2:
+        container_name: filebeat_spark_worker2
+        hostname: filebeat_spark_worker2
+        user: root
+        image: "docker.elastic.co/beats/filebeat:6.5.4"
+        volumes:
+            - './Beats/Filebeat/filebeat.yml:/etc/filebeat/filebeat.yml'
+            - './Beats/Filebeat/modules.d/:/etc/filebeat/modules.d/'
+            - './Logs/Spark_Worker2/:/var/log/spark_worker2/'
+        networks:
+            - elknet
+        command: 'filebeat setup --template -E output.logstash.enabled=false  -E beat.name=wk2 -E ''output.elasticsearch.hosts=["elk:9200"]'' && filebeat -e -c /etc/filebeat/filebeat.yml'
+        restart: on-failure
+        depends_on:
+            - elk
+    
+    spark_master:
+        image: bde2020/spark-master:2.4.0-hadoop2.7
+        privileged: true
+        container_name: spark_master
+        hostname: spark_master
+        networks:
+            - elknet
+        ports:
+            - '8080:8080'
+            - '7077:7077'
+        environment:
+            - INIT_DAEMON_STEP=setup_spark
+        volumes:
+            - './Logs/Spark_Master/:/spark/logs/'
+        restart: on-failure
+
+            
+    spark_worker_1:
+        image: bde2020/spark-worker:2.4.0-hadoop2.7
+        container_name: spark_worker_1
+        hostname: spark_worker_1
+        networks:
+            - elknet
+        depends_on:
+            - spark_master
+        ports:
+            - '8081:8081'
+        environment:
+            - 'SPARK_MASTER=spark://spark_master:7077'
+        volumes:
+            - './Logs/Spark_Worker1/:/spark/logs/'
+        restart: on-failure
+        
+    spark_worker_2:
+        image: bde2020/spark-worker:2.4.0-hadoop2.7
+        container_name: spark_worker_2
+        hostname: spark_worker_2
+        networks:
+            - elknet
+        depends_on:
+            - spark_master
+        ports:
+            - '8083:8081'
+        environment:
+            - 'SPARK_MASTER=spark://spark_master:7077'
+        volumes:
+            - './Logs/Spark_Worker2/:/spark/logs/'
+        restart: on-failure
+        

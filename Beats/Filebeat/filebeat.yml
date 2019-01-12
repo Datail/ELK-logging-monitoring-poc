@@ -1,0 +1,33 @@
+filebeat.inputs:
+
+- type: log
+  enabled: true
+  fields:
+    id: master
+  paths:
+    - /var/log/spark_master/*
+
+
+- type: log
+  enabled: true
+  fields:
+    id: wrk
+  paths:
+    - /var/log/spark_worker1/*
+    
+- type: log
+  enabled: true
+  fields:
+    id: wk2
+  paths:
+    - /var/log/spark_worker2/*
+  
+output.logstash:
+  hosts: ["elk:5044"]
+  
+setup.kibana:
+  host: "elk:5601"
+  
+setup.dashboards.enabled: true
+setup.dashboards.beat: "filebeat"
+setup.dashboards.index: "filebeat-*"
