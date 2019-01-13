@@ -23,7 +23,7 @@ filebeat.inputs:
   fields:
     id: wk2
   paths:
-    - /var/log/spark_worker2/*
+    - /var/log/spark_workerZ/*
   
 output.logstash:
   hosts: ["logstash:5044"]

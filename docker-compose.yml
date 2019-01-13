@@ -124,7 +124,7 @@ services:
         volumes:
             - './Beats/Filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml'
             - './Beats/Filebeat/modules.d/:/usr/share/filebeat/modules.d/'
-            - './Logs/Spark_Worker2/:/var/log/spark_worker2/'
+            - './Logs/Spark_WorkerZ/:/var/log/spark_workerZ/'
         networks:
             - elknet
         #command: 'filebeat setup --template -E output.logstash.enabled=false  -E beat.name=wk2 -E ''output.elasticsearch.hosts=["elk:9200"]'' && filebeat -e -c /etc/filebeat/filebeat.yml'
