@@ -1,0 +1,3 @@
+HEY=1
+TRUE=TRUE
+MESSG=Bye!
