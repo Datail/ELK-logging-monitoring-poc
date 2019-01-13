@@ -16,8 +16,8 @@ services:
         networks:
             - elasticnet
         ports:
-            - '9200:9200'
-            - '9300:9300'
+            - '9202:9200'
+            - '9357:9300'
         environment:
             - ES_CONNECT_RETRY=1200
             - MAX_MAP_COUNT=262144 
@@ -35,7 +35,7 @@ services:
         networks:
             - elasticnet
         ports:
-            - '5601:5601'
+            - '5607:5601'
         volumes:
             - './Kibana/kibana.yml:/usr/share/kibana/config/kibana.yml'
     
@@ -50,7 +50,7 @@ services:
         networks:
             - elasticnet
         ports:
-            - '5044:5044'
+            - '5049:5044'
         volumes:
             - './Logstash/Pipelines/:/usr/share/logstash/pipeline/'
             - './Logstash/Pipelines/:/etc/logstash/conf.d/'
@@ -145,8 +145,8 @@ services:
         networks:
             - elasticnet
         ports:
-            - '8080:8080'
-            - '7077:7077'
+            - '8087:8080'
+            - '7078:7077'
         environment:
             - INIT_DAEMON_STEP=setup_spark
         volumes:
@@ -163,7 +163,7 @@ services:
         depends_on:
             - container_spark_master
         ports:
-            - '8081:8081'
+            - '8088:8081'
         environment:
             - 'SPARK_MASTER=spark://spark_master:7077'
         volumes:
@@ -179,7 +179,7 @@ services:
         depends_on:
             - container_spark_master
         ports:
-            - '8083:8081'
+            - '8089:8081'
         environment:
             - 'SPARK_MASTER=spark://spark_master:7077'
         volumes:
