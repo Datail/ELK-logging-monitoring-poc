@@ -2,6 +2,7 @@ filebeat.inputs:
 
 - type: log
   enabled: true
+  name: master
   fields:
     id: master
   paths:
@@ -10,13 +11,15 @@ filebeat.inputs:
 
 - type: log
   enabled: true
+  name: wrk1
   fields:
-    id: wrk
+    id: wrk1
   paths:
     - /var/log/spark_worker1/*
     
 - type: log
   enabled: true
+  name: wk2
   fields:
     id: wk2
   paths:
