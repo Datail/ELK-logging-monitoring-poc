@@ -4,26 +4,74 @@ networks:
         driver: bridge
         ipam:
             driver: default
-            config: [{subnet: 13.100.0.0/16}]
+            config: [{subnet: 10.10.10.0/16}]
 services:
-    elk:
-        image: 'sebp/elk:latest'
+
+    elasticsearch:
+        image: 'docker.elastic.co/elasticsearch/elasticsearch:6.3.2'
         privileged: true
-        hostname: elk
-        container_name: elk
+        hostname: elasticsearch
+        container_name: elasticsearch
         restart: on-failure
         networks:
             - elknet
         ports:
             - '9200:9200'
             - '9300:9300'
+        environment:
+            - ES_CONNECT_RETRY=1200
+            - MAX_MAP_COUNT=262144 
+        volumes:
+            - './ElasticSearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml'
+            
+    kibana:
+        image: 'docker.elastic.co/kibana/kibana:6.3.2'
+        privileged: true
+        hostname: kibana
+        container_name: kibana
+        restart: on-failure
+        depends_on:
+            - elasticsearch
+        networks:
+            - elknet
+        ports:
             - '5601:5601'
+        volumes:
+            - './Kibana/kibana.yml:/usr/share/kibana/config/kibana.yml'
+    
+    logstash:
+        image: 'docker.elastic.co/logstash/logstash:6.3.2'
+        privileged: true
+        hostname: logstash
+        container_name: logstash
+        depends_on:
+            - elasticsearch
+        restart: on-failure
+        networks:
+            - elknet
+        ports:
             - '5044:5044'
         volumes:
             - './Logstash/Pipelines/:/usr/share/logstash/pipeline/'
             - './Logstash/Pipelines/:/etc/logstash/conf.d/'
-        environment:
-            - ES_CONNECT_RETRY=300
+
+    #elk:
+    #    image: 'sebp/elk:latest'
+    #    privileged: true
+    #    hostname: elk
+    #    container_name: elk
+    #    restart: on-failure
+    #    networks:
+    #        - elknet
+    #    ports:
+    #        - '9200:9200'
+    #        - '9300:9300'
+    #        - '5601:5601'
+    #        - '5044:5044'
+    #    volumes:
+    #        - './Logstash/Pipelines/:/usr/share/logstash/pipeline/'
+    #        - './Logstash/Pipelines/:/etc/logstash/conf.d/'
+        
     
     
     filebeat_spark_master:
@@ -40,10 +88,11 @@ services:
         #command:  'filebeat setup --template -E output.logstash.enabled=false  -E beat.name=master -E ''output.elasticsearch.hosts=["elk:9200"]'' && filebeat -e -c /etc/filebeat/filebeat.yml'
         restart: on-failure
         depends_on:
-            - elk
+            - elasticsearch
+            - logstash
         environment:
-            - output.elasticsearch.hosts= ["elk:9200"]
-            - setup.kibana.host = 'elk:5601'
+            - output.elasticsearch.hosts= ["elasticsearch:9200"]
+            - setup.kibana.host = 'kibana:5601'
             - beat.name= 'master'
             
     filebeat_spark_worker1:
@@ -60,10 +109,11 @@ services:
         #command:  'filebeat setup --template -E output.logstash.enabled=false  -E beat.name=wrk1 -E ''output.elasticsearch.hosts=["elk:9200"]'' && filebeat -e -c /etc/filebeat/filebeat.yml'
         restart: on-failure
         depends_on:
-            - elk
+            - elasticsearch
+            - logstash
         environment:
-            - output.elasticsearch.hosts= ["elk:9200"]
-            - setup.kibana.host = 'elk:5601'
+            - output.elasticsearch.hosts= ["elasticsearch:9200"]
+            - setup.kibana.host = 'kibana:5601'
             - beat.name= 'wrk1'
             
     filebeat_spark_worker2:
@@ -80,10 +130,11 @@ services:
         #command: 'filebeat setup --template -E output.logstash.enabled=false  -E beat.name=wk2 -E ''output.elasticsearch.hosts=["elk:9200"]'' && filebeat -e -c /etc/filebeat/filebeat.yml'
         restart: on-failure
         depends_on:
-            - elk
+            - elasticsearch
+            - logstash
         environment:
-            - output.elasticsearch.hosts= ["elk:9200"]
-            - setup.kibana.host = 'elk:5601'
+            - output.elasticsearch.hosts= ["elasticsearch:9200"]
+            - setup.kibana.host = 'kibana:5601'
             - beat.name= 'wk2'
     
     spark_master:
