@@ -1,6 +1,6 @@
 # ELK-logging-monitoring-poc
 
-<h1>Steps to reproduce</h1>
+<h2>Steps to reproduce</h2>
 
 <ul>
 <li>Fetch changes from repository</li> 
