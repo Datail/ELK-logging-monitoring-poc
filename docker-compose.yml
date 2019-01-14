@@ -23,6 +23,7 @@ services:
             - MAX_MAP_COUNT=262144 
         volumes:
             - './ElasticSearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml'
+            - './ElasticSearch/jvm.options:/usr/share/elasticsearch/config/jvm.options'
             
     containerkibana:
         image: 'docker.elastic.co/kibana/kibana:6.3.2'
