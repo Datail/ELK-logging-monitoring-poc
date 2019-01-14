@@ -7,11 +7,11 @@ networks:
             config: [{subnet: 10.10.10.0/16}]
 services:
 
-    container_elasticsearch:
+    containerelasticsearch:
         image: 'docker.elastic.co/elasticsearch/elasticsearch:6.3.2'
         privileged: true
-        hostname: container_elasticsearch
-        container_name: container_elasticsearch
+        hostname: containerelasticsearch
+        container_name: containerelasticsearch
         restart: on-failure
         networks:
             - elasticnet
@@ -24,14 +24,13 @@ services:
         volumes:
             - './ElasticSearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml'
             
-    container_kibana:
+    containerkibana:
         image: 'docker.elastic.co/kibana/kibana:6.3.2'
         privileged: true
-        hostname: container_kibana
-        container_name: container_kibana
-        restart: on-failure
+        hostname: containerkibana
+        container_name: containerkibana
         depends_on:
-            - container_elasticsearch
+            - containerelasticsearch
         networks:
             - elasticnet
         ports:
@@ -39,13 +38,13 @@ services:
         volumes:
             - './Kibana/kibana.yml:/usr/share/kibana/config/kibana.yml'
     
-    container_logstash:
+    containerlogstash:
         image: 'docker.elastic.co/logstash/logstash:6.3.2'
         privileged: true
-        hostname: container_logstash
-        container_name: container_logstash
+        hostname: containerlogstash
+        container_name: containerlogstash
         depends_on:
-            - container_elasticsearch
+            - containerelasticsearch
         restart: on-failure
         networks:
             - elasticnet
@@ -85,14 +84,14 @@ services:
             - './Logs/Spark_Master/:/var/log/spark_master/'
         networks:
             - elasticnet
-        #command:  'filebeat setup --template -E output.logstash.enabled=false  -E beat.name=master -E ''output.elasticsearch.hosts=["elk:9200"]'' && filebeat -e -c /etc/filebeat/filebeat.yml'
+        #command:  'filebeat setup --template -E output.logstash.enabled=false  -E beat.name=master -E ''output.elasticsearch.hosts=["containerelasticsearch:9200"]'' && filebeat -e -c /etc/filebeat/filebeat.yml'
         restart: on-failure
         depends_on:
-            - container_elasticsearch
-            - container_logstash
+            - containerelasticsearch
+            - containerlogstash
         environment:
-            - output.elasticsearch.hosts= ["container_elasticsearch:9200"]
-            - setup.kibana.host = 'container_kibana:5601'
+            - output.elasticsearch.hosts= ["containerelasticsearch:9200"]
+            - setup.kibana.host = 'containerkibana:5601'
             - beat.name= 'master'
             
     container_filebeat_spark_worker1:
@@ -109,11 +108,11 @@ services:
         #command:  'filebeat setup --template -E output.logstash.enabled=false  -E beat.name=wrk1 -E ''output.elasticsearch.hosts=["elk:9200"]'' && filebeat -e -c /etc/filebeat/filebeat.yml'
         restart: on-failure
         depends_on:
-            - container_elasticsearch
-            - container_logstash
+            - containerelasticsearch
+            - containerlogstash
         environment:
-            - output.elasticsearch.hosts= ["container_elasticsearch:9200"]
-            - setup.kibana.host = 'container_kibana:5601'
+            - output.elasticsearch.hosts= ["containerelasticsearch:9200"]
+            - setup.kibana.host = 'containerkibana:5601'
             - beat.name= 'wrk1'
             
     container_filebeat_spark_worker2:
@@ -130,11 +129,11 @@ services:
         #command: 'filebeat setup --template -E output.logstash.enabled=false  -E beat.name=wk2 -E ''output.elasticsearch.hosts=["elk:9200"]'' && filebeat -e -c /etc/filebeat/filebeat.yml'
         restart: on-failure
         depends_on:
-            - container_elasticsearch
-            - container_logstash
+            - containerelasticsearch
+            - containerlogstash
         environment:
-            - output.elasticsearch.hosts= ["container_elasticsearch:9200"]
-            - setup.kibana.host = 'container_kibana:5601'
+            - output.elasticsearch.hosts= ["containerelasticsearch:9200"]
+            - setup.kibana.host = 'containerkibana:5601'
             - beat.name= 'wk2'
     
     container_spark_master:
