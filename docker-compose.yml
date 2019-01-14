@@ -13,6 +13,7 @@ services:
         hostname: containerelasticsearch
         container_name: containerelasticsearch
         restart: on-failure
+        
         networks:
             - elasticnet
         ports:
@@ -20,7 +21,13 @@ services:
             - '9357:9300'
         environment:
             - ES_CONNECT_RETRY=1200
-            - MAX_MAP_COUNT=262144 
+            - MAX_MAP_COUNT=262144
+            - bootstrap.memory_lock=true
+            - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
         volumes:
             - './ElasticSearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml'
             - './ElasticSearch/jvm.options:/usr/share/elasticsearch/config/jvm.options'
