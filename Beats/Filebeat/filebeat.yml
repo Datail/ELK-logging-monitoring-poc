@@ -25,6 +25,9 @@ filebeat.inputs:
   paths:
     - /var/log/spark_workerZ/*
   
+## Container's hostname - needed to be able to create multiple indices later on (in Logstash).
+name: '{$HOSTNAME}'
+
 output.logstash:
   hosts: ["containerlogstash:5044"]
   #ssl.certificate_authorities: ["/etc/ca.crt"]
