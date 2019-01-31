@@ -79,7 +79,24 @@ services:
     #        - './Logstash/Pipelines/:/usr/share/logstash/pipeline/'
     #        - './Logstash/Pipelines/:/etc/logstash/conf.d/'
         
-    
+    container_metricbeat:
+        container_name: container_metricbeat
+        hostname: container_metricbeat
+        user: root
+        image: "docker.elastic.co/beats/metricbeat:6.5.4"
+        volumes:
+            - './Beats/Metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml'
+        networks:
+            - elasticnet
+        #command:  'filebeat setup --template -E output.logstash.enabled=false  -E beat.name=master -E ''output.elasticsearch.hosts=["containerelasticsearch:9200"]'' && filebeat -e -c /etc/filebeat/filebeat.yml'
+        restart: on-failure
+        depends_on:
+            - containerelasticsearch
+            - containerlogstash
+        environment:
+            - output.elasticsearch.hosts= ["containerelasticsearch:9200"]
+            - setup.kibana.host = 'containerkibana:5601'
+            - beat.name= 'master'
     
     container_filebeat_spark_master:
         container_name: container_filebeat_spark_master
@@ -122,6 +139,7 @@ services:
             - output.elasticsearch.hosts= ["containerelasticsearch:9200"]
             - setup.kibana.host = 'containerkibana:5601'
             - beat.name= 'wrk1'
+
             
     container_filebeat_spark_worker2:
         container_name: container_filebeat_spark_worker2
@@ -159,6 +177,10 @@ services:
         volumes:
             - './Logs/Spark_Master/:/spark/logs/'
         restart: on-failure
+        labels:
+            co.elastic.metrics/module: docker
+            co.elastic.metrics/hosts: 'container_spark_master:80'
+            co.elastic.metrics/period: 10s
 
             
     container_spark_worker_1:
@@ -176,6 +198,10 @@ services:
         volumes:
             - './Logs/Spark_Worker1/:/spark/logs/'
         restart: on-failure
+        labels:
+            co.elastic.metrics/module: docker
+            co.elastic.metrics/hosts: 'container_spark_worker_1:80'
+            co.elastic.metrics/period: 10s
         
     container_spark_worker_2:
         image: bde2020/spark-worker:2.4.0-hadoop2.7
@@ -192,4 +218,8 @@ services:
         volumes:
             - './Logs/Spark_Worker2/:/spark/logs/'
         restart: on-failure
+        labels:
+            co.elastic.metrics/module: docker
+            co.elastic.metrics/hosts: 'container_spark_worker_2:80'
+            co.elastic.metrics/period: 10s
         

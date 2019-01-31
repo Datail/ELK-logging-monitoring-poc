@@ -8,7 +8,6 @@ filebeat.inputs:
   paths:
     - /var/log/spark_master/*
 
-
 - type: log
   enabled: true
   name: wrk1
