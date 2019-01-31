@@ -24,8 +24,6 @@ metricbeat.modules:
   period: 10s
   enabled: true
 
-## Container's hostname - needed to be able to create multiple indices later on (in Logstash).
-name: '{$HOSTNAME}'
 
 output.logstash:
   hosts: ["containerlogstash:5044"]

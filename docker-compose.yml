@@ -86,6 +86,7 @@ services:
         image: "docker.elastic.co/beats/metricbeat:6.5.4"
         volumes:
             - './Beats/Metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml'
+            - '//var/run/docker.sock:/var/run/docker.sock'
         networks:
             - elasticnet
         #command:  'filebeat setup --template -E output.logstash.enabled=false  -E beat.name=master -E ''output.elasticsearch.hosts=["containerelasticsearch:9200"]'' && filebeat -e -c /etc/filebeat/filebeat.yml'
@@ -96,7 +97,7 @@ services:
         environment:
             - output.elasticsearch.hosts= ["containerelasticsearch:9200"]
             - setup.kibana.host = 'containerkibana:5601'
-            - beat.name= 'master'
+            - beat.name= 'mymetrics'
     
     container_filebeat_spark_master:
         container_name: container_filebeat_spark_master
