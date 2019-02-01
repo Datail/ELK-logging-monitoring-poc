@@ -97,7 +97,7 @@ services:
         environment:
             - output.elasticsearch.hosts= ["containerelasticsearch:9200"]
             - setup.kibana.host = 'containerkibana:5601'
-            - beat.name= 'mymetrics'
+            - beat.name= 'container_metricbeat'
     
     container_filebeat_spark_master:
         container_name: container_filebeat_spark_master
